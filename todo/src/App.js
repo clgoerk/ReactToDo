@@ -40,12 +40,17 @@ function App() {
     localStorage.setItem("todos", JSON.stringify(updatedTodos));
   };
 
-  const todoTableRows = (doneValue) =>
-    todoItems
-      .filter(item => item.done === doneValue)
-      .map(item =>
-        <TodoRow key={item.action} item={item} toggle={toggleTodo} />
-      );
+  const deleteTodo = (todo) => {
+    if (todo.done) {
+      const updatedTodos = todoItems.filter(item => item.action !== todo.action);
+      setTodoItems(updatedTodos);
+      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    }
+  };
+
+  // const todoTableRows = (doneValue) => todoItems.filter(item => item.done === doneValue).map(item =>
+  //   <TodoRow key={item.action} item={item} toggle={toggleTodo} />
+  // );
 
   useEffect(() => {
     try {
@@ -78,17 +83,24 @@ function App() {
         <TodoCreator callback={createNewTodo} />
       </div>
 
-      <table className="table table-striped table-bordered">
-        <thead className="table-dark">
-          <tr>
-            <th>Action</th>
-            <th>Done</th>
-          </tr>
-        </thead>
-        <tbody>
-          {todoTableRows(false)}
-        </tbody>
-      </table>
+    <table className="table table-striped table-bordered">
+      <thead className="table-dark">
+        <tr>
+          <th>Action</th>
+          <th>Done</th>
+        </tr>
+      </thead>
+      <tbody>
+        {todoItems.filter(item => !item.done).map(item => (
+          <TodoRow
+            key={item.action}
+            item={item}
+            toggle={toggleTodo}
+            // no deleteTodo prop passed here
+          />
+        ))}
+      </tbody>
+    </table>
 
       <div className="bg-secondary text-white text-center p-2">
         <VisibilityControl
@@ -102,12 +114,20 @@ function App() {
         <table className="table table-striped table-bordered">
           <thead>
             <tr>
-              <th style={{ width: "75%" }}>Description</th>
-              <th style={{ width: "25%" }}>Done</th>
+              <th style={{ width: "60%" }}>Description</th>
+              <th style={{ width: "20%" }}>Done</th>
+              <th style={{ width: "20%" }}>Actions</th>  {/* new column */}
             </tr>
           </thead>
           <tbody>
-            {todoTableRows(true)}
+            {todoItems.filter(item => item.done).map(item => (
+              <TodoRow
+                key={item.action}
+                item={item}
+                toggle={toggleTodo}
+                deleteTodo={deleteTodo}   // pass deleteTodo callback
+              />
+            ))}
           </tbody>
         </table>
       }
